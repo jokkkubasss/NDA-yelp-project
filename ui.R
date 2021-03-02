@@ -13,7 +13,7 @@ library(shiny)
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel("Las Vegas Party Planner"),
+  titlePanel("Las Vegas Party Planning"),
   
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
