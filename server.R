@@ -9,9 +9,40 @@
 
 library(shiny)
 
-# Define server logic required to draw a histogram
+
 shinyServer(function(input, output) {
-   
+  
+  filtered_data <- reactive({
+    
+    # here happens the filtering...
+    dt.biz[unlist(lapply(dt.biz$categories, check_membership, keys = input$categories)) &
+             avg_stars >= input$rating & 
+             if (length(input$price_cats) == 0) 1 else price_range %in% input$price_cats]
+  
+  })
+
+  
+  output$lv_map <- renderLeaflet({
+    dt <- data()
+    
+    leaflet(data = dt) %>%
+      setView(lng = -115.1666, lat = 36.1465,  zoom = 11) %>%
+      addProviderTiles(providers$OpenStreetMap)
+
+      
+  }) 
+  # observer for filtering the map
+  observe({
+    leafletProxy("lv_map", data = filtered_data()) %>%
+      clearMarkers() %>%
+      addMarkers(lng = ~longitude, 
+                 lat = ~latitude,
+                 popup = ~paste("Name: ", business_name, "<br>", 
+                                "Rating: ", avg_stars, "<br>", 
+                                "Number of reviews: ", review_count_business, "<br>"
+                                ))
+  })
+  
   output$distPlot <- renderPlot({
     
     # generate bins based on input$bins from ui.R
@@ -21,6 +52,9 @@ shinyServer(function(input, output) {
     # draw the histogram with the specified number of bins
     hist(x, breaks = bins, col = 'darkgray', border = 'black')
     
+    
   })
+  
+  
   
 })
