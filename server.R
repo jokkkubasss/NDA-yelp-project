@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(ggplot2)
 
 
 shinyServer(function(input, output) {
@@ -55,6 +56,40 @@ shinyServer(function(input, output) {
     
   })
   
+  # Descriptive General
+  filtered.user.data <- reactive({
+    
+    # Here, we filter the user data. 
+    dt.unique.users <- dt.vegas.full[, .(user_id = unique(user_id)), by = 
+                                       .(average_user_stars,review_count_user,
+                                         fans)]
+    # Somehow, this user hasn't reviewed anything, so we're taking him/her out.
+    dt.unique.users <- dt.unique.users[-c(240992), ,]
+    
+  })
   
+    output$sum_fans <- renderPrint({
+      summary(dt.unique.users$fans)
+      
+    }) 
   
+    output$sum_user_reviews <- renderPrint({
+      summary(dt.unique.users$review_count_user)
+      
+    })
+    
+    output$sum_user_stars <- renderPrint({
+      summary(dt.unique.users$average_user_stars)
+      
+    })
+ 
+    output$review_count_business <- renderPrint({
+      summary(dt.biz$review_count_business)
+      
+    })
+      
+    output$star_business <- renderPrint({
+      summary(dt.biz$avg_stars)  
+    })
+    
 })

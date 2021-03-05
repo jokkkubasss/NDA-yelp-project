@@ -90,16 +90,38 @@ shinyUI(fluidPage(
     navbarMenu(title = "Explore The Data",
         tabPanel("General Descriptives", fluid = TRUE,
                  titlePanel("General Descriptives"),
-                 mainPanel(
-                   p("Welcome to the General Descriptives Page!
+                 sidebarLayout(position = "right",
+                   sidebarPanel(
+                     h5(p("User Data")),
+                     h6(p("User Fans")),
+                     verbatimTextOutput("sum_fans"),
+                     h6(p("User Review Count")),
+                     verbatimTextOutput("sum_user_reviews"),
+                     h6(p("Average Star Rating")),
+                     verbatimTextOutput("sum_user_stars"),
+                     h5(p("Business Data")),
+                     h6(p("Number of Reviews Per Business")),
+                     verbatimTextOutput("review_count_business"),
+                     h6(p("Average Star Rating Per Business")),
+                     verbatimTextOutput("star_business"),
+                     width = 6,
+                   ),
+                   mainPanel(
+                     p("Welcome to the General Descriptives Page!
                       Our dataset is based on data gathered directly from Yelp. 
                       In this dataset, there are 1542 businesses of a number of different categories, spread throughout different areas in Las Vegas.
                       Each of these businesses has its own unique ID, neighborhood, exact location, average star rating, review count, and price range."),
-                   p("In addition, the dataset is comrpised of 481,312 unique user reviews.
+                     p("In addition, the dataset is comrpised of 481,312 unique user reviews.
                       Each individual review holds information on its usefulness, how funny, or how cool other users thought the reviews were."),
-                   p("The dataset also holds information specifically on the users.
+                     p("The dataset also holds information specifically on the 255,778 reviewers.
                       There is data on the average star rating that a user gives, their review count, the usefulness, funniness, and coolness of their reviews, and the number of fans that certain reviewers have."),
-                 )),
+                     p("In the side bar, you can find summary statistics on some of the most interesting variables in the dataset.
+                       It's noticeable that the mean and median star ratings for both reviewers and businesses are high, indicating that reviewers tend to give positive reviews overall.
+                       In addition, the user review count and the user fans both have high maxima, but a very low median and average in comparison. 
+                       Lastly, this effect seems to be similar for business reviews, although weaker."),
+                     p("In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into what we can find here."),
+                     width = 6,
+                   ))),
         tabPanel("Business Descriptives"),
         tabPanel("Reviewer Descriptives")),
   
