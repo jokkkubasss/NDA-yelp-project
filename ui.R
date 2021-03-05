@@ -21,7 +21,9 @@ shinyUI(fluidPage(
   tags$div(class = "title", titlePanel("Las Vegas Party Planning")),
   navbarPage(
     "",
-    tabPanel(title = "Welcome!"),
+    navbarMenu(title = "Welcome!",
+               tabPanel("About Las Vegas Party Planning"),
+               tabPanel("About the Team")),
     
     #Plan your trip tab (map)
     tabPanel(
@@ -61,10 +63,17 @@ shinyUI(fluidPage(
       
     ),
     # Explore the data tab
-    tabPanel(title = "Explore The Data"),
+    navbarMenu(title = "Explore The Data",
+        tabPanel("General Descriptives"),
+        tabPanel("Business Descriptives"),
+        tabPanel("Reviewer Descriptives")),
+  
     
     # Network tab
-    tabPanel(title = "See The Network"),
+    navbarMenu(title = "See The Network",
+               tabPanel("Network Descriptives"),
+               tabPanel("Business Network"),
+               tabPanel("Reviewer Network")),
     
     #predict
     tabPanel(title = "Predict your next party!")
