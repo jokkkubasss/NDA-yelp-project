@@ -1,0 +1,33 @@
+#lv_map {
+	height: 84vh !important;
+}
+
+#controls {
+  /* Appearance */
+  background-color: white;
+  padding: 20px 20px 20px 20px;
+  opacity: 0.8;
+}
+
+.title {
+  margin-left: 15px;
+}
+
+.container-fluid {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+.navbar {
+	margin-bottom: 0px;
+}
+
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    font-family: "Segoe UI";
+}
