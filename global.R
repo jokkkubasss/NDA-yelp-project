@@ -1,3 +1,6 @@
+#### This file contains all the necessary files that we will be using. ####
+### RUN BEFORE RUNNING APP ###
+
 library(data.table)
 
 # load the business categories
@@ -14,3 +17,8 @@ check_membership <- function(keys, item) {
     FALSE
   } 
 }
+
+cats.for.select
+
+length(unique(dt.biz$business_id))
+
