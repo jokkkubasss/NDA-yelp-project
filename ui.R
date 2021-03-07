@@ -119,8 +119,11 @@ shinyUI(fluidPage(
                        It's noticeable that the mean and median star ratings for both reviewers and businesses are high, indicating that reviewers tend to give positive reviews overall.
                        In addition, the user review count and the user fans both have high maxima, but a very low median and average in comparison. 
                        Lastly, this effect seems to be similar for business reviews, although weaker."),
-                     p("In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into what we can find here."),
+                     p("In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into our data than what you can find here. 
+                       Below, you can find a table with the first 100 observations in our dataset, with the most interesting variable names listed.
+                       You can pick the number of rows that you are interested in viewing."),
                      width = 6,
+                     DT::dataTableOutput("table_vegas_full"),
                    ))),
         tabPanel("Business Descriptives", fluid = TRUE,
                  titlePanel("Business Descriptives"),
