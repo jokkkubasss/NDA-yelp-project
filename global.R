@@ -2,6 +2,7 @@
 ### RUN BEFORE RUNNING APP ###
 
 library(data.table)
+library(networkD3)
 
 # load the business categories
 cats.for.select <- readRDS("business_categories.rds")
@@ -25,4 +26,3 @@ check_membership <- function(keys, item) {
 cats.for.select
 
 length(unique(dt.biz$business_id))
-

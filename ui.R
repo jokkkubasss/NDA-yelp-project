@@ -107,7 +107,12 @@ shinyUI(fluidPage(
     # Network tab
     navbarMenu(title = "See The Network",
                tabPanel("Network Descriptives",
-                        titlePanel("Network Descriptives")),
+                        titlePanel("Network Descriptives"),
+                        sidebarLayout(
+                          sidebarPanel('Filters Go here'
+                          ),
+                          mainPanel('Graph goes here')
+                        )),
                tabPanel("Business Network"),
                tabPanel("Reviewer Network")),
     
