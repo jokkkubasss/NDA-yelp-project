@@ -14,6 +14,14 @@ dt.biz <- readRDS('bussinesses.rds')
 
 dt.vegas.full <- readRDS('vegas_full.rds')
 
+
+# load business dataset with neighborhoods (which leaves out 1 business)
+
+dt.biz.nb <- readRDS('business_neighborhoods.rds')
+
+
+
+
 # Function that checks membership of each a string of items against a row containing these items
 check_membership <- function(keys, item) {
   if (sum(keys %in% strsplit(item, ", ")[[1]]) == length(keys)) {
