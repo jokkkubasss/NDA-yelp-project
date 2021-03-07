@@ -122,42 +122,7 @@ shinyUI(fluidPage(
                      p("In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into what we can find here."),
                      width = 6,
                    ))),
-        tabPanel("Business Descriptives", fluid = TRUE,
-                 titlePanel("Business Descriptives"),
-                 br(),
-                 sidebarLayout(
-                   sidebarPanel("The histogram on the right displays the distribution of destinations based on their average rating. Here are options to filter the histogram on minimum amount of reviews, neighborhood and price range.
-                                Below the histogram, the top 10 destinations are displayed depending on the filters chosen. The destinations are first sorted by rating, then by the number of reviews.", 
-                                width = 5,
-                                br(), 
-                                br(),
-                     sliderInput(inputId = "min_reviews", 
-                             label = h5("Minimum reviews"),
-                             value = 0, min = 0, max = 2000, step = 100),
-                     selectInput(inputId = "biz_neighborhood",
-                             label = h5("Neighborhood"), 
-                             choices = c("All", "Anthem", 
-                                         "Centennial", "Downtown", 
-                                         "Green Valley", "North Las Vegas", 
-                                         "South East", "South West", 
-                                         "Spring Valley", "S. Summerlin", 
-                                         "Summerlin", "Sunrise", "Whitney")),
-                     checkboxGroupInput("price_cats_biz",
-                                        label = h5("Price category"), 
-                                        choices = c("Low", "Medium", "High"), 
-                                        inline = TRUE, 
-                                        selected = c("Low", "Medium", "High")),
-                     br(),
-                     h5("General observations"),
-                     p("In the plot it is evident that the majority of the destinations have a rating around 4 stars, 
-                       which also does not seem to change when filtering on a higher amount of reviews.
-                       An interesting observation is that there are relatively more destinations rated higher than 4 stars in the lowest price category compared to the other price categories.
-                       The reason for this is likely that expectations become higher as destinations fall in higher price categories.")
-                     ), 
-          mainPanel(h3("Rating distribution"), width = 5, 
-                 plotOutput("hist_business_stars"),
-                 tableOutput("table_biz_distribution")
-                 ))),
+        tabPanel("Business Descriptives"),
         tabPanel("Reviewer Descriptives")),
   
     
