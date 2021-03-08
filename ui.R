@@ -9,7 +9,6 @@
 
 library(shiny)
 library(leaflet)
-library(shinyWidgets)
 library(shinythemes)
 
 
@@ -47,15 +46,16 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                
                tabPanel("About The Team", fluid = TRUE,
                         titlePanel("About The Team"),
-                        column(2,
+                        column(3,
                                h4("Ting Fung Lee"),
                                p("Graduated in the bachelor International Business at the Rijksunviersiteit in Groningen, Ting Fung decided to further develop his interest in Business Intelligence by doing the Master BIM at the RSM.
                                  Next to his studies, Ting Fung is participating in the CleanTech Challenge, where students are working on circular business models.")),
-                        column(2,
+                        column(3,
                                h4("Sawan Mahabier")),
-                        column(2,
+                        column(3,
                                h4("Jokubas Krasauskas")),
-                        column(2,
+                        column(3,
+                               img(src = "renate.jpeg", height = 267, width = 200),
                                h4("Renate Schroder"),
                                p("Renate completed her BSc in International Business at the RuG. Afterwards, she chose to further her interests in the strategic use of data by studying BIM. 
                                  Next to her studies at the RSM, she's also chairing a committee for the Rotterdam Consulting Club, and part of a consulting project for Restaurant Brands International. 
