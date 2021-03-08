@@ -9,18 +9,20 @@
 
 library(shiny)
 library(leaflet)
+library(shinyWidgets)
+library(shinythemes)
 
 
 
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = shinytheme("united"),
   tags$head(# Include custom CSS
     includeCSS("www/styles.css")),
   
   # Application title
-  tags$div(class = "title", titlePanel("Las Vegas Party Planning")),
+  tags$div(class = "title"),
   navbarPage(
-    "",
+    "Vegas Party Planning",
     navbarMenu(title = "Welcome!",
                tabPanel("About Las Vegas Party Planning", fluid = TRUE,
                         titlePanel("About Las Vegas Party Planning"),
@@ -44,10 +46,21 @@ shinyUI(fluidPage(
                               
                                
                tabPanel("About The Team", fluid = TRUE,
-                        column(4,
-                               br(),
-                               h4("About The Team")
-                               ))),
+                        titlePanel("About The Team"),
+                        column(2,
+                               h4("Ting Fung Lee"),
+                               p("Graduated in the bachelor International Business at the Rijksunviersiteit in Groningen, Ting Fung decided to further develop his interest in Business Intelligence by doing the Master BIM at the RSM.
+                                 Next to his studies, Ting Fung is participating in the CleanTech Challenge, where students are working on circular business models.")),
+                        column(2,
+                               h4("Sawan Mahabier")),
+                        column(2,
+                               h4("Jokubas Krasauskas")),
+                        column(2,
+                               h4("Renate Schroder"),
+                               p("Renate completed her BSc in International Business at the RuG. Afterwards, she chose to further her interests in the strategic use of data by studying BIM. 
+                                 Next to her studies at the RSM, she's also chairing a committee for the Rotterdam Consulting Club, and part of a consulting project for Restaurant Brands International. 
+                                 Lastly, she is a BIM Honours Student."))
+               )),
     
     #Plan your trip tab (map)
     tabPanel(
@@ -90,22 +103,6 @@ shinyUI(fluidPage(
     navbarMenu(title = "Explore The Data",
         tabPanel("General Descriptives", fluid = TRUE,
                  titlePanel("General Descriptives"),
-                 sidebarLayout(position = "right",
-                   sidebarPanel(
-                     h5(p("User Data")),
-                     h6(p("User Fans")),
-                     verbatimTextOutput("sum_fans"),
-                     h6(p("User Review Count")),
-                     verbatimTextOutput("sum_user_reviews"),
-                     h6(p("Average Star Rating")),
-                     verbatimTextOutput("sum_user_stars"),
-                     h5(p("Business Data")),
-                     h6(p("Number of Reviews Per Business")),
-                     verbatimTextOutput("review_count_business"),
-                     h6(p("Average Star Rating Per Business")),
-                     verbatimTextOutput("star_business"),
-                     width = 6,
-                   ),
                    mainPanel(
                      p("Welcome to the General Descriptives Page!
                       Our dataset is based on data gathered directly from Yelp. 
@@ -122,9 +119,21 @@ shinyUI(fluidPage(
                      p("In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into our data than what you can find here. 
                        Below, you can find a table with the first 100 observations in our dataset, with the most interesting variable names listed.
                        You can pick the number of rows that you are interested in viewing."),
-                     width = 6,
-                     DT::dataTableOutput("table_vegas_full"),
-                   ))),
+                     h5(p("User Data")),
+                     h6(p("User Fans")),
+                     verbatimTextOutput("sum_fans"),
+                     h6(p("User Review Count")),
+                     verbatimTextOutput("sum_user_reviews"),
+                     h6(p("Average Star Rating")),
+                     verbatimTextOutput("sum_user_stars"),
+                     h5(p("Business Data")),
+                     h6(p("Number of Reviews Per Business")),
+                     verbatimTextOutput("review_count_business"),
+                     h6(p("Average Star Rating Per Business")),
+                     verbatimTextOutput("star_business"),
+                     DT::dataTableOutput("table_vegas_full")
+                     )
+                   ),
         tabPanel("Business Descriptives", fluid = TRUE,
                  titlePanel("Business Descriptives"),
                  br(),
