@@ -11,6 +11,7 @@ library(shiny)
 library(ggplot2)
 library(data.table)
 library(tidyverse)
+library(DT)
 
 shinyServer(function(input, output) {
   filtered_data <- reactive({
@@ -71,6 +72,7 @@ shinyServer(function(input, output) {
     
   })
   
+<<<<<<< HEAD
   # Descriptive General
   filtered.user.data <- reactive({
     # Here, we filter the user data.
@@ -121,10 +123,19 @@ shinyServer(function(input, output) {
     
   })
   
+
   output$sum_fans <- renderPrint({
     summary(dt.unique.users$fans)
     
   })
+
+  # General Descriptives Summary Statistics
+  
+    output$sum_fans <- renderPrint({
+      summary(dt.unique.users$fans)
+      
+    }) 
+>>>>>>> e2c95c967597260b6eb25053c10b248c3dd79ca7
   
   output$sum_user_reviews <- renderPrint({
     summary(dt.unique.users$review_count_user)
@@ -139,11 +150,23 @@ shinyServer(function(input, output) {
   output$review_count_business <- renderPrint({
     summary(dt.biz$review_count_business)
     
+<<<<<<< HEAD
   })
   
   output$star_business <- renderPrint({
     summary(dt.biz$avg_stars)
   })
+
+    output$table_vegas_full <- DT::renderDataTable({
+      dt.vegas.full.2
+    })
+      
+    output$hist_business_stars <- renderPlot({
+      ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()), 
+      binwidth = 0.5) + 
+        labs(x = "Star Rating", y = "Number of destinations", 
+             title = " ")
+    })
   
   output$hist_business_stars <- renderPlot({
     ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()),

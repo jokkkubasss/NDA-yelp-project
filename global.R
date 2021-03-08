@@ -40,6 +40,22 @@ g.bi.vegas <- graph_from_data_frame(dt.vegas.graph[user_id %in%
 
 g.businesses <- bipartite.projection(g.bi.vegas)$proj1
 
+# Here, we filter the user data. 
+dt.unique.users <- dt.vegas.full[, .(user_id = unique(user_id)), by = 
+                                   .(average_user_stars,review_count_user,
+                                     fans)]
+
+# Somehow, one user hasn't reviewed anything, so we're taking him/her out.
+dt.unique.users <- dt.unique.users[-c(240992), ,]
+
+# Here, we filter the data for the general descriptives table.
+
+dt.vegas.full.2 <- dt.vegas.full[sample(nrow(dt.vegas.full), 100),
+                                 .(user_id, business_id, stars, business_name, 
+                                   avg_stars, review_count_business,
+                                   review_count_user, fans, neighborhood_v)]
+
+
 V(g.businesses)$nghd <- 'group one' 
 
 g.biz <- igraph_to_networkD3(g.businesses, group = V(g.businesses)$nghd)
