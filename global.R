@@ -11,16 +11,49 @@ cats.for.select <- readRDS("business_categories.rds")
 dt.biz <- readRDS('bussinesses.rds')
 
 # load the reviews dataset 
-
 dt.vegas.full <- readRDS('vegas_full.rds')
 
-
 # load business dataset with neighborhoods (which leaves out 1 business)
-
 dt.biz.nb <- readRDS('business_neighborhoods.rds')
 
+# graph for the business network (filtered to include only top centiles)
+dt.vegas.graph <- dt.vegas.full[dt.vegas.full$fans > 1750]
+
+l.business <- (unique(dt.vegas.graph$business_name))
+l.unique.reviewers <- dt.vegas.graph[business_name %in% l.business, 
+                                     unique(user_id)]
+
+dt.reviewers <- dt.vegas.graph[user_id %in% l.unique.reviewers, 
+                               list(name = unique(user_id), type = TRUE)]
+dt.businesses <- dt.vegas.graph[user_id %in% l.unique.reviewers,
+                                list(name = unique(business_name), type = FALSE)]
+
+dt.vertices <- rbind(dt.reviewers, dt.businesses)
+
+# Create the graph based on reviewers and businesses.
+g.bi.vegas <- graph_from_data_frame(dt.vegas.graph[user_id %in% 
+                                                     l.unique.reviewers, 
+                                                   list(user_id, business_name)],
+                                    directed = FALSE, vertices = dt.vertices)
+
+#### Network D3
+
+g.businesses <- bipartite.projection(g.bi.vegas)$proj1
+
+V(g.businesses)$nghd <- 'group one' 
+
+g.biz <- igraph_to_networkD3(g.businesses, group = V(g.businesses)$nghd)
+
+V(g.businesses)$degree <- degree(g.businesses)
+
+head(V(g.businesses)$degree)
+
+forceNetwork(Links = g.biz$links, Nodes = g.biz$nodes, Source = 'source', 
+             Target = 'target', NodeID = 'name', Group = 'group', linkDistance = 200)
 
 
+
+plot(g.businesses, vertex.label = NA)
 
 # Function that checks membership of each a string of items against a row containing these items
 check_membership <- function(keys, item) {
@@ -30,7 +63,3 @@ check_membership <- function(keys, item) {
     FALSE
   } 
 }
-
-cats.for.select
-
-length(unique(dt.biz$business_id))

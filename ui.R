@@ -21,37 +21,48 @@ shinyUI(fluidPage(
   tags$div(class = "title", titlePanel("Las Vegas Party Planning")),
   navbarPage(
     "",
-    navbarMenu(title = "Welcome!",
-               tabPanel("About Las Vegas Party Planning", fluid = TRUE,
-                        titlePanel("About Las Vegas Party Planning"),
-                        sidebarLayout(
-                          sidebarPanel(
-                            p("Welcome to Las Vegas Party Planning!
-                               With this app, you can find your perfect party, bar, and dining destinations for your trip to Las Vegas.
-                               In the Plan Your Trip tab, you can use our interactive map to select your favorite categories, minimum amount of stars, and price categories.
-                               In the Explore The Data tab, you can find the descriptives of the data that we used.
-                                       The tab include general descriptives, and interactive plots with filters in which you can see the data in detail.
-                                       The See The Network tab gives you the ability to see our businesses and user networks in great detail.
-                                       Lastly, in the Predict your Party! tab allows users to predict their next favorite place to party in Vegas, based on the attributes of their preference.")
-                          ), 
-                          mainPanel(
-                            img(src = "lasvegas_sign.jpg", height = 400, width =
-                                  600)
-                          )
-                        )),
-                        
-                            
-                              
-                               
-               tabPanel("About The Team", fluid = TRUE,
-                        column(4,
-                               br(),
-                               h4("About The Team")
-                               ))),
+    navbarMenu(
+      title = "Welcome!",
+      tabPanel(
+        "About Las Vegas Party Planning",
+        fluid = TRUE,
+        tags$div(
+          class = 'main_page',
+          titlePanel("About Las Vegas Party Planning"),
+          sidebarLayout(sidebarPanel(
+            p(
+              "Welcome to Las Vegas Party Planning!
+              With this app, you can find your perfect party, bar, and dining destinations for your trip to Las Vegas.
+              In the Plan Your Trip tab, you can use our interactive map to select your favorite categories, minimum amount of stars, and price categories.
+              In the Explore The Data tab, you can find the descriptives of the data that we used.
+              The tab include general descriptives, and interactive plots with filters in which you can see the data in detail.
+              The See The Network tab gives you the ability to see our businesses and user networks in great detail.
+              Lastly, in the Predict your Party! tab allows users to predict their next favorite place to party in Vegas, based on the attributes of their preference."
+            )
+            ),
+            mainPanel(
+              img(
+                src = "lasvegas_sign.jpg",
+                height = 400,
+                width =
+                  600
+              )
+            ))
+          )
+        ),
+      
+      
+      
+      
+      tabPanel("About The Team", fluid = TRUE,
+               column(4,
+                      br(),
+                      h4("About The Team")))
+    ),
     
     #Plan your trip tab (map)
     tabPanel(
-      title = "Plan Your Trip",
+      title = "Explore The City",
       leafletOutput('lv_map'),
       absolutePanel(
         id = "controls",
@@ -87,93 +98,156 @@ shinyUI(fluidPage(
       
     ),
     # Explore the data tab
-    navbarMenu(title = "Explore The Data",
-        tabPanel("General Descriptives", fluid = TRUE,
-                 titlePanel("General Descriptives"),
-                 sidebarLayout(position = "right",
-                   sidebarPanel(
-                     h5(p("User Data")),
-                     h6(p("User Fans")),
-                     verbatimTextOutput("sum_fans"),
-                     h6(p("User Review Count")),
-                     verbatimTextOutput("sum_user_reviews"),
-                     h6(p("Average Star Rating")),
-                     verbatimTextOutput("sum_user_stars"),
-                     h5(p("Business Data")),
-                     h6(p("Number of Reviews Per Business")),
-                     verbatimTextOutput("review_count_business"),
-                     h6(p("Average Star Rating Per Business")),
-                     verbatimTextOutput("star_business"),
-                     width = 6,
-                   ),
-                   mainPanel(
-                     p("Welcome to the General Descriptives Page!
-                      Our dataset is based on data gathered directly from Yelp. 
-                      In this dataset, there are 1542 businesses of a number of different categories, spread throughout different areas in Las Vegas.
-                      Each of these businesses has its own unique ID, neighborhood, exact location, average star rating, review count, and price range."),
-                     p("In addition, the dataset is comrpised of 481,312 unique user reviews.
-                      Each individual review holds information on its usefulness, how funny, or how cool other users thought the reviews were."),
-                     p("The dataset also holds information specifically on the 255,778 reviewers.
-                      There is data on the average star rating that a user gives, their review count, the usefulness, funniness, and coolness of their reviews, and the number of fans that certain reviewers have."),
-                     p("In the side bar, you can find summary statistics on some of the most interesting variables in the dataset.
-                       It's noticeable that the mean and median star ratings for both reviewers and businesses are high, indicating that reviewers tend to give positive reviews overall.
-                       In addition, the user review count and the user fans both have high maxima, but a very low median and average in comparison. 
-                       Lastly, this effect seems to be similar for business reviews, although weaker."),
-                     p("In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into what we can find here."),
-                     width = 6,
-                   ))),
-        tabPanel("Business Descriptives", fluid = TRUE,
-                 titlePanel("Business Descriptives"),
-                 br(),
-                 sidebarLayout(
-                   sidebarPanel("The histogram on the right displays the distribution of destinations based on their average rating. Here are options to filter the histogram on minimum amount of reviews, neighborhood and price range.
-                                Below the histogram, the top 10 destinations are displayed depending on the filters chosen. The destinations are first sorted by rating, then by the number of reviews.", 
-                                width = 5,
-                                br(), 
-                                br(),
-                     sliderInput(inputId = "min_reviews", 
-                             label = h5("Minimum reviews"),
-                             value = 0, min = 0, max = 2000, step = 100),
-                     selectInput(inputId = "biz_neighborhood",
-                             label = h5("Neighborhood"), 
-                             choices = c("All", "Anthem", 
-                                         "Centennial", "Downtown", 
-                                         "Green Valley", "North Las Vegas", 
-                                         "South East", "South West", 
-                                         "Spring Valley", "S. Summerlin", 
-                                         "Summerlin", "Sunrise", "Whitney")),
-                     checkboxGroupInput("price_cats_biz",
-                                        label = h5("Price category"), 
-                                        choices = c("Low", "Medium", "High"), 
-                                        inline = TRUE, 
-                                        selected = c("Low", "Medium", "High")),
-                     br(),
-                     h5("General observations"),
-                     p("In the plot it is evident that the majority of the destinations have a rating around 4 stars, 
-                       which also does not seem to change when filtering on a higher amount of reviews.
-                       An interesting observation is that there are relatively more destinations rated higher than 4 stars in the lowest price category compared to the other price categories.
-                       The reason for this is likely that expectations become higher as destinations fall in higher price categories.")
-                     ), 
-          mainPanel(h3("Rating distribution"), width = 5, 
-                 plotOutput("hist_business_stars"),
-                 tableOutput("table_biz_distribution")
-                 ))),
-        tabPanel("Reviewer Descriptives")),
-  
+    navbarMenu(
+      title = "Explore The Data",
+      tabPanel(
+        "General Descriptives",
+        fluid = TRUE,
+        tags$div(
+          class = 'main_page',
+          titlePanel("General Descriptives"),
+          sidebarLayout(
+            position = "right",
+            sidebarPanel(
+              h5(p("User Data")),
+              h6(p("User Fans")),
+              verbatimTextOutput("sum_fans"),
+              h6(p("User Review Count")),
+              verbatimTextOutput("sum_user_reviews"),
+              h6(p("Average Star Rating")),
+              verbatimTextOutput("sum_user_stars"),
+              h5(p("Business Data")),
+              h6(p("Number of Reviews Per Business")),
+              verbatimTextOutput("review_count_business"),
+              h6(p("Average Star Rating Per Business")),
+              verbatimTextOutput("star_business"),
+              width = 6
+            ),
+            mainPanel(
+              p(
+                "Welcome to the General Descriptives Page!
+                Our dataset is based on data gathered directly from Yelp.
+                In this dataset, there are 1542 businesses of a number of different categories, spread throughout different areas in Las Vegas.
+                Each of these businesses has its own unique ID, neighborhood, exact location, average star rating, review count, and price range."
+              ),
+              p(
+                "In addition, the dataset is comrpised of 481,312 unique user reviews.
+                Each individual review holds information on its usefulness, how funny, or how cool other users thought the reviews were."
+              ),
+              p(
+                "The dataset also holds information specifically on the 255,778 reviewers.
+                There is data on the average star rating that a user gives, their review count, the usefulness, funniness, and coolness of their reviews, and the number of fans that certain reviewers have."
+              ),
+              p(
+                "In the side bar, you can find summary statistics on some of the most interesting variables in the dataset.
+                It's noticeable that the mean and median star ratings for both reviewers and businesses are high, indicating that reviewers tend to give positive reviews overall.
+                In addition, the user review count and the user fans both have high maxima, but a very low median and average in comparison.
+                Lastly, this effect seems to be similar for business reviews, although weaker."
+              ),
+              p(
+                "In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into what we can find here."
+              ),
+              width = 6
+              )
+              )
+      )
+      ),
+      tabPanel(
+        "Business Descriptives",
+        fluid = TRUE,
+        tags$div(
+          class = 'main_page',
+          titlePanel("Business Descriptives"),
+          br(),
+          sidebarLayout(
+            sidebarPanel(
+              "The histogram on the right displays the distribution of destinations based on their average rating. Here are options to filter the histogram on minimum amount of reviews, neighborhood and price range.
+              Below the histogram, the top 10 destinations are displayed depending on the filters chosen. The destinations are first sorted by rating, then by the number of reviews.",
+              width = 6,
+              br(),
+              br(),
+              sliderInput(
+                inputId = "min_reviews",
+                label = h5("Minimum reviews"),
+                value = 0,
+                min = 0,
+                max = 2000,
+                step = 100
+              ),
+              selectInput(
+                inputId = "biz_neighborhood",
+                label = h5("Neighborhood"),
+                choices = c(
+                  "All",
+                  "Anthem",
+                  "Centennial",
+                  "Downtown",
+                  "Green Valley",
+                  "North Las Vegas",
+                  "South East",
+                  "South West",
+                  "Spring Valley",
+                  "S. Summerlin",
+                  "Summerlin",
+                  "Sunrise",
+                  "Whitney"
+                )
+              ),
+              checkboxGroupInput(
+                "price_cats_biz",
+                label = h5("Price category"),
+                choices = c("Low", "Medium", "High"),
+                inline = TRUE,
+                selected = c("Low", "Medium", "High")
+              ),
+              br(),
+              h5("General observations"),
+              p(
+                "In the plot it is evident that the majority of the destinations have a rating around 4 stars,
+                which also does not seem to change when filtering on a higher amount of reviews.
+                An interesting observation is that there are relatively more destinations rated higher than 4 stars in the lowest price category compared to the other price categories.
+                The reason for this is likely that expectations become higher as destinations fall in higher price categories."
+              )
+              ),
+            mainPanel(
+              h3("Rating distribution"),
+              width = 6,
+              plotOutput("hist_business_stars"),
+              tableOutput("table_biz_distribution")
+            )
+              )
+          )
+      ),
+      tabPanel("Reviewer Descriptives")
+    ),
+    
     
     # Network tab
-    navbarMenu(title = "See The Network",
-               tabPanel("Network Descriptives",
-                        titlePanel("Network Descriptives"),
-                        sidebarLayout(
-                          sidebarPanel('Filters Go here'
-                          ),
-                          mainPanel('Graph goes here')
-                        )),
-               tabPanel("Business Network"),
-               tabPanel("Reviewer Network")),
-    
-    #predict
+    navbarMenu(
+      title = "See The Network",
+      tabPanel("Network Descriptives"),
+      tabPanel(
+        "Business Network",
+        tags$div( class = 'main_page',
+          titlePanel("Well reviewed businesses"),
+          p(
+            'This page shows the businesses that were reviewed by the most popular reviewers in Las Vegas, on the basis of how many fans the reviewers have.'
+          ),
+          sidebarLayout(sidebarPanel(
+            sliderInput(
+              'network_degree',
+              label = h5("Number of connections"),
+              value = 50,
+              min = 0,
+              max = 100,
+              step = 1
+            )
+          ), mainPanel(forceNetworkOutput('force')))          
+        )
+
+      ),
+      tabPanel("Reviewer Network")
+    ),
     tabPanel(title = "Predict your next party!")
-  )
-))
+      )
+  ))
