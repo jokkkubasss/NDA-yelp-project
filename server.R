@@ -124,33 +124,16 @@ shinyServer(function(input, output) {
   
   # General Descriptives Summary Statistics
   
-  output$sum_fans <- renderPrint({
-    summary(dt.unique.users$fans)
-    
-  })
-  
-  output$sum_user_reviews <- renderPrint({
-    summary(dt.unique.users$review_count_user)
-    
-  })
-  
-  output$sum_user_stars <- renderPrint({
-    summary(dt.unique.users$average_user_stars)
-    
-  })
-  
-  output$review_count_business <- renderPrint({
-    summary(dt.biz$review_count_business)
-    
-  })
-  
-  output$star_business <- renderPrint({
-    summary(dt.biz$avg_stars)
+  output$table_sum_stats <- DT::renderDataTable({
+    dt.sum.new
   })
   
   output$table_vegas_full <- DT::renderDataTable({
     dt.vegas.full.2
+  
   })
+  
+  # Plots and filtering for Descriptives
   
   output$hist_business_stars <- renderPlot({
     ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()),
@@ -166,7 +149,7 @@ shinyServer(function(input, output) {
            title = " ")
   })
   
-  output$table_biz_distribution <- renderTable(
+  output$table_biz_distribution <- renderTable({
     filtered_biz_reviews_data_table() %>%
       arrange(desc(avg_stars),
               desc(review_count_business)) %>%
@@ -178,10 +161,11 @@ shinyServer(function(input, output) {
         Reviews = review_count_business,
         Neighborhood = neighborhood_v,
         Categories = categories
-      ),
+      )
     hover = TRUE
-  )
+  })
   
+  # The networks
   output$force <- renderForceNetwork({
     forceNetwork(
       Links = g.biz$links,
@@ -199,4 +183,35 @@ shinyServer(function(input, output) {
       bounded = TRUE
     )
   })
+  
+  
+  filtered_fans_graph <- reactive({
+    dt.vegas.full[fans >= input$fans]
+  })
+  
+  
+  output$force.new <- renderForceNetwork({
+    graph = filtered_fans_graph()
+    forceNetwork(
+      Links = g.rev$links,
+      Nodes = g.rev$nodes,
+      Source = 'source',
+      Target = 'target',
+      NodeID = 'name',
+      Value = 'value',
+      Group = 'group',
+      fontSize = 20,
+      linkWidth = networkD3::JS("function(d) {return Math.sqrt(d.value); }"),
+      linkDistance = 100,
+      Nodesize = "betweenness",
+      legend = FALSE,
+      bounded = TRUE
+    )
+  })
+
+  
 })
+
+
+
+

@@ -30,7 +30,18 @@ dt.unique.users <- dt.vegas.full[, .(user_id = unique(user_id)), by =
 # Somehow, one user hasn't reviewed anything, so we're taking him/her out.
 dt.unique.users <- dt.unique.users[-c(240992), ,]
 
-# Here, we filter the data for the general descriptives table.
+# Here, we filter the data for the general descriptives tables.
+
+dt.summary <- dt.vegas.full[, .(stars, avg_stars, review_count_business,
+                                fans, average_user_stars)]
+
+dt.sum <- summary(dt.summary)
+dt.sum <- as.data.table(sum)
+dt.sum.new <- rename(sum,
+                  Variable = V2,
+                  SummaryStats = N)
+dt.sum.new <- dt.sum.new[, .(Variable, SummaryStats)]
+
 
 dt.vegas.full.2 <- dt.vegas.full[sample(nrow(dt.vegas.full), 100),
                                  .(user_id, business_id, stars, business_name, 
@@ -41,8 +52,9 @@ dt.vegas.full.2 <- dt.vegas.full[sample(nrow(dt.vegas.full), 100),
 
 ### Graph Creation
 
-# graph for the business network (filtered to include only top centiles)
-dt.vegas.graph <- dt.vegas.full[dt.vegas.full$fans > 1750]
+# graph for the business network (filtered to include only top percentiles)
+
+dt.vegas.graph <- dt.vegas.full[dt.vegas.full$fans > 999]
 
 l.business <- (unique(dt.vegas.graph$business_name))
 l.unique.reviewers <- dt.vegas.graph[business_name %in% l.business, 
@@ -88,8 +100,36 @@ forceNetwork(Links = g.biz$links,
              Nodesize = "betweenness")
 
 
-
 plot(g.businesses, vertex.label = NA)
+
+# Network reviewers
+
+g.reviewers <- bipartite.projection(g.bi.vegas)$proj2
+
+E(g.reviewers)$weight
+
+V(g.reviewers)$nghd <- 'group two'
+
+V(g.reviewers)$degree <- degree(g.reviewers)
+
+g.rev <- igraph_to_networkD3(g.reviewers, group = V(g.reviewers)$nghd)
+
+g.rev$betweennes <- betweenness(g.reviewers)
+g.rev$nodes$betweenness <- betweenness(g.reviewers)
+order(g.rev$links$value)
+
+forceNetwork(Links = g.rev$links, 
+             Nodes = g.rev$nodes, 
+             Source = 'source', 
+             Target = 'target', 
+             NodeID = 'name', 
+             Group = 'group', 
+             linkDistance = 200,
+             linkWidth = E(g.reviewers)$weight,
+             Nodesize = "betweenness")
+
+plot(g.reviewers, vertex.label = NA)
+
 
 # Function that checks membership of each a string of items against a row containing these items
 check_membership <- function(keys, item) {
