@@ -7,12 +7,6 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(ggplot2)
-library(data.table)
-library(tidyverse)
-library(DT)
-
 shinyServer(function(input, output) {
   filtered_data <- reactive({
     # filtering for the map
@@ -72,7 +66,6 @@ shinyServer(function(input, output) {
     
   })
   
-<<<<<<< HEAD
   # Descriptive General
   filtered.user.data <- reactive({
     # Here, we filter the user data.
@@ -123,19 +116,18 @@ shinyServer(function(input, output) {
     
   })
   
-
+  
   output$sum_fans <- renderPrint({
     summary(dt.unique.users$fans)
     
   })
-
+  
   # General Descriptives Summary Statistics
   
-    output$sum_fans <- renderPrint({
-      summary(dt.unique.users$fans)
-      
-    }) 
->>>>>>> e2c95c967597260b6eb25053c10b248c3dd79ca7
+  output$sum_fans <- renderPrint({
+    summary(dt.unique.users$fans)
+    
+  })
   
   output$sum_user_reviews <- renderPrint({
     summary(dt.unique.users$review_count_user)
@@ -150,23 +142,22 @@ shinyServer(function(input, output) {
   output$review_count_business <- renderPrint({
     summary(dt.biz$review_count_business)
     
-<<<<<<< HEAD
   })
   
   output$star_business <- renderPrint({
     summary(dt.biz$avg_stars)
   })
-
-    output$table_vegas_full <- DT::renderDataTable({
-      dt.vegas.full.2
-    })
-      
-    output$hist_business_stars <- renderPlot({
-      ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()), 
-      binwidth = 0.5) + 
-        labs(x = "Star Rating", y = "Number of destinations", 
-             title = " ")
-    })
+  
+  output$table_vegas_full <- DT::renderDataTable({
+    dt.vegas.full.2
+  })
+  
+  output$hist_business_stars <- renderPlot({
+    ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()),
+                              binwidth = 0.5) +
+      labs(x = "Star Rating", y = "Number of destinations",
+           title = " ")
+  })
   
   output$hist_business_stars <- renderPlot({
     ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()),
@@ -176,29 +167,36 @@ shinyServer(function(input, output) {
   })
   
   output$table_biz_distribution <- renderTable(
-    filtered_biz_reviews_data_table() %>% 
-      arrange(desc(avg_stars), 
-              desc(review_count_business)) %>% 
-                head(, n = 10L) %>% 
-                  rename(
-                    Rating = avg_stars,
-                    Name = business_name,
-                    PriceRange = price_range,
-                    Reviews = review_count_business,
-                    Neighborhood = neighborhood_v,
-                    Categories = categories
-                  ),
+    filtered_biz_reviews_data_table() %>%
+      arrange(desc(avg_stars),
+              desc(review_count_business)) %>%
+      head(, n = 10L) %>%
+      rename(
+        Rating = avg_stars,
+        Name = business_name,
+        PriceRange = price_range,
+        Reviews = review_count_business,
+        Neighborhood = neighborhood_v,
+        Categories = categories
+      ),
     hover = TRUE
   )
   
   output$force <- renderForceNetwork({
-    forceNetwork(Links = g.biz$links, 
-                 Nodes = g.biz$nodes, 
-                 Source = 'source', 
-                 Target = 'target', 
-                 NodeID = 'name',
-                 Group = 'group', 
-                 linkDistance = 200,
-                 fontSize = 20)
+    forceNetwork(
+      Links = g.biz$links,
+      Nodes = g.biz$nodes,
+      Source = 'source',
+      Target = 'target',
+      NodeID = 'name',
+      Value = 'value',
+      Group = 'group',
+      fontSize = 20,
+      linkWidth = networkD3::JS("function(d) { return Math.sqrt(d.value); }"),
+      linkDistance = 100,
+      Nodesize = "betweenness",
+      legend = TRUE,
+      bounded = TRUE
+    )
   })
 })
