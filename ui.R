@@ -163,7 +163,7 @@ shinyUI(fluidPage(
             "
           ),
           h4("Summary Statistics Table"),
-          DT::dataTableOutput("table_sum_stats"),
+          tableOutput('table_sum_stats'),
           h4("Dataset Table"),
           DT::dataTableOutput("table_vegas_full")
           )

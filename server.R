@@ -116,23 +116,17 @@ shinyServer(function(input, output) {
     
   })
   
-  
-  output$sum_fans <- renderPrint({
-    summary(dt.unique.users$fans)
-    
-  })
-  
   # General Descriptives Summary Statistics
   
-  output$table_sum_stats <- DT::renderDataTable({
-    dt.sum.new
-  })
+  output$table_sum_stats <- renderTable({
+    dt.sum.new.new},
+    rownames = TRUE)
   
   output$table_vegas_full <- DT::renderDataTable({
     dt.vegas.full.2
     
   })
-  
+
   # Plots and filtering for Descriptives
   
   output$hist_business_stars <- renderPlot({

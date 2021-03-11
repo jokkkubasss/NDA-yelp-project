@@ -8,6 +8,7 @@ library(DT)
 library(data.table)
 library(networkD3)
 library(igraph)
+library(pastecs)
 
 # load the business categories
 cats.for.select <- readRDS("business_categories.rds")
@@ -42,6 +43,11 @@ dt.sum.new <- rename(dt.sum,
                   SummaryStats = N)
 dt.sum.new <- dt.sum.new[, .(Variable, SummaryStats)]
 
+attach(dt.summary)
+scores <-cbind(stars, avg_stars, review_count_business, fans, average_user_stars)
+options(scipen=100)
+options(digits=2)
+dt.sum.new.new <- stat.desc(scores, basic = F)
 
 dt.vegas.full.2 <- dt.vegas.full[sample(nrow(dt.vegas.full), 100),
                                  .(user_id, business_id, stars, business_name, 
