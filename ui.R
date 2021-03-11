@@ -27,28 +27,35 @@ shinyUI(fluidPage(
     navbarMenu(
       title = "Welcome!",
       tabPanel(
-        "About Las Vegas Party Planning",
+        "Welcome to Las Vegas Party Planning",
         fluid = TRUE,
         tags$div(
           class = 'main_page',
-        titlePanel("About Las Vegas Party Planning"),
+        titlePanel("Welcome to Las Vegas Party Planning"),
         sidebarLayout(sidebarPanel(
           p(
             "Welcome to Las Vegas Party Planning!
             With this app, you can find your perfect party, bar, and dining destinations for your trip to Las Vegas.
             In the Plan Your Trip tab, you can use our interactive map to select your favorite categories, minimum amount of stars, and price categories.
+            This will allow users to easily select the destinations that they like. 
+            In addition, it allows for businesses to easily see who their main competitors are in certain categories.
             In the Explore The Data tab, you can find the descriptives of the data that we used.
-            The tab include general descriptives, and interactive plots with filters in which you can see the data in detail.
-            The See The Network tab gives you the ability to see our businesses and user networks in great detail.
-            Lastly, in the Predict your Party! tab allows users to predict their next favorite place to party in Vegas, based on the attributes of their preference."
+            This tab includes summary statistics, and an overview of some of our most important variables. 
+            In addition, you can find interactive plots on reviewers and businesses. For example, you can see which neighborhoods have which kinds of restaurants here. 
+            The See The Network tab gives you the ability to see our businesses and reviewers networks in great detail.
+            We have two bipartite graphs. In the businesses graph, you can see the destinations which were visited by the best Yelp reviewers, and are most centrally located. 
+            This can serve as an indicator which restaurants you cannot miss!
+            In addition, in the reviewers network, you can find who of the most popular reviewers have visited the same places. 
+            It gives an indication of which reviewers are the key players in rating our party destinations in the Las Vegas area.
+            Lastly, in the Predict your Party! tab allows you to predict your next favorite place to party in Vegas, based on your personal preferences."
           )
           ),
           mainPanel(
             img(
               src = "lasvegas_sign.jpg",
-              height = 400,
+              height = 600,
               width =
-                600
+                900
             )
           )))
         ),
@@ -189,7 +196,6 @@ shinyUI(fluidPage(
                 "Anthem",
                 "Centennial",
                 "Downtown",
-                "Green Valley",
                 "North Las Vegas",
                 "South East",
                 "South West",
@@ -238,14 +244,24 @@ shinyUI(fluidPage(
                  class = 'main_page',
                  titlePanel("Well reviewed businesses"),
                  p(
-                   'This page shows the businesses that were reviewed by the most popular reviewers in Las Vegas, on the basis of how many fans the reviewers have.'
+                   'This page shows the bars, restaurants, and nightlife that were reviewed by the most popular reviewers in Las Vegas. 
+                   One business is connected to another business if they were reviewed by the same reviewer.
+                   The reviewers were selected on the basis of the usefulness of their reviews, and on the basis of how many fans the reviewers have.
+                   The size of each destination node depends on its betweenness centrality.
+                   The higher the betweenness, the shorter the path to other nodes in the network.
+                   In essence, betweenness shows how important a restaurant is when it pertains to their connections to other restaurants.'
                  ),
                  sidebarLayout(sidebarPanel(
                    selectInput('business_node_single',
                                label = 'Choose a single restaurant',
                                choices = dt.ntw.attrs$name),
+                     p(h5('Select a Destination')),
+                     p('Here, you can select the bars, restaurants, and nightlife that were reviewed by the best reviewers.
+                       If you select one of them, you will see automatically which other business was also reviewed by the same reviewers. 
+                       If you choose multiple destinations at once, you will see whether the two businesses connect through reviewers or not.
+                       If they connect, you can easily see through which destination.'),
                    selectInput('businesses_nodes',
-                               label = 'Select your favourite restaurants',
+                               label = 'Select your favourite destination',
                                multiple = TRUE,
                                #selected = dt.ntw.attrs$name,
                                selectize = TRUE,
@@ -257,19 +273,26 @@ shinyUI(fluidPage(
                tags$div(
                  class = 'main_page',
                  titlePanel("Most popular reviewers"),
-                 p('This page shows the most popular reviewers.'),
-                 sidebarLayout(sidebarPanel(
-                   sliderInput(
-                     inputId = 'fans',
-                     label = h5("Number of fans"),
-                     value = 1000,
-                     min = 1000,
-                     max = 3350,
-                     step = 50,
+                 p('This page shows the most popular reviewers in our Las Vegas dataset by their unique user IDs. The data was pre-filtered based on the usefulness of reviews, and the number of fans reviewers have.
+                   One reviewer is linked to another if they reviewed the same businesses. The size of the reviewer nodes is dependent on the betweenness of a node. 
+                   The higher the betweenness, the shorter the path to other nodes in the network.'),
+                 sidebarLayout(
+                   sidebarPanel(
+                     p(h5('How to select reviewers')),
+                     p('Here, you can select the most interesting reviewers, and see their direct neighbors.
+                       By selecting more than one reviewer, you will see the chosen reviewers, their direct neighbors, and if and how they are connected to one another.'),
+                     selectInput('reviewers_nodes',
+                                 label = "Select interesting reviewers",
+                                 multiple = TRUE,
+                                 selectize = TRUE,
+                                 choices = dt.ntw.attrs.r$name),
+                     DT::dataTableOutput("dt.reviewers.network")
+                   ),
+                   mainPanel(forceNetworkOutput('force.r'))
                    )
-                 ),
-                 mainPanel(forceNetworkOutput('force.new'))), 
-               )),
+                 )
+               ),
+ 
     
     
     #predict

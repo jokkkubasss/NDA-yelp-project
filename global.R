@@ -9,9 +9,6 @@ library(data.table)
 library(networkD3)
 library(igraph)
 
-# for Jokubas:
-setwd('C:/Users/jkras/Desktop/UNI/NDA/YELP/NDA-yelp-project')
-
 # load the business categories
 cats.for.select <- readRDS("business_categories.rds")
 
@@ -155,7 +152,7 @@ make.graph <- function(items.to.filter) {
 }
 
 
-# function that creates a connection of neighborhoods of seleced nodes
+# function that creates a connection of neighborhoods of selected nodes
 make.graph.neighborhoods <- function(items.to.filter) {
   
   g.original <- make_ego_graph(g.businesses.d3,
@@ -183,24 +180,77 @@ make.g.union <- function(graphs) {
 }
 
 
+#### Main reviewers bipartite network
+g.reviewers <- bipartite.projection(g.bi.vegas, multiplicity = TRUE)$proj2
 
-# Network reviewers
+# Remove nodes without edges
+g.reviewers.filtered <- induced_subgraph(g.reviewers,
+                                          vids = which(degree(g.reviewers) != 0))
 
-g.reviewers <- bipartite.projection(g.bi.vegas)$proj2
+# Clustering coefficient of the reviewers network is slightly higher.
 
-E(g.reviewers)$weight
+transitivity(g.reviewers, type = "average")
 
-V(g.reviewers)$nghd <- 'group two'
+# Network d3 reviewers
 
-V(g.reviewers)$degree <- degree(g.reviewers)
-
-g.rev <- igraph_to_networkD3(g.reviewers, group = V(g.reviewers)$nghd)
-
-g.rev$betweennes <- betweenness(g.reviewers)
-g.rev$nodes$betweenness <- betweenness(g.reviewers)
-order(g.rev$links$value)
+# Removing weak edges
+g.reviewers.d3.filtered <- delete_edges(g.reviewers.filtered, 
+                                         E(g.reviewers.filtered)[weight < 15])
 
 
+# Removing disconnected nodes
+g.reviewers.d3 <- induced_subgraph(g.reviewers.d3.filtered,
+                                    vids = which(degree(g.reviewers.d3.filtered) != 0))
+
+# adding dimensions
+V(g.reviewers.d3)$degree <- degree(g.reviewers.d3)
+V(g.reviewers.d3)$betweenness <- betweenness(g.reviewers.d3)
+V(g.reviewers.d3)$evcent <- evcent(g.reviewers.d3)$vector
+
+# turning it into a dataframe
+dt.ntw.attrs.r <- as_data_frame(g.reviewers.d3, 'vertices')
+
+dt.ntw.attrs.r <- data.table(dt.ntw.attrs.r)
+
+cols <- names(dt.ntw.attrs.r)[2:4]
+dt.ntw.attrs.r[,(cols) := round(.SD,3), .SDcols=cols]
+
+# Adding a group, since it is required.
+V(g.reviewers.d3)$nghd <- 'group two' 
+
+g.rev <- igraph_to_networkD3(g.reviewers.d3,
+                             group = V(g.reviewers.d3)$nghd)
+
+# creating the betweenness dimension for D3 object
+g.rev$nodes$betweenness <-  betweenness(g.reviewers.d3)
+
+# function for reviewers
+
+# function that creates a connection of neighborhoods of selected nodes
+make.graph.neighborhoods.r <- function(items.to.filter) {
+  
+  g.original <- make_ego_graph(g.reviewers.d3,
+                               order = 1,
+                               nodes = V(g.reviewers.d3)[name %in% items.to.filter])
+  g.union <- make.g.union(g.original)
+  
+  
+  g.temp <- igraph_to_networkD3(g.union, 
+                                group = c(rep('test', length(V(g.union)))))
+  
+  g.temp$nodes$betweenness <- betweenness(g.union)
+  
+  return(g.temp)
+  
+}
+
+make.g.union <- function(graphs) {
+  result <- get.edgelist(make_empty_graph())
+  for (subgraph in graphs) {
+    result <- rbind(result, get.edgelist(subgraph))
+  } 
+  return(graph_from_edgelist(unique(result)))
+}
 
 
 

@@ -130,21 +130,15 @@ shinyServer(function(input, output) {
   
   output$table_vegas_full <- DT::renderDataTable({
     dt.vegas.full.2
-  
+    
   })
   
   # Plots and filtering for Descriptives
   
   output$hist_business_stars <- renderPlot({
     ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()),
-                              binwidth = 0.5) +
-      labs(x = "Star Rating", y = "Number of destinations",
-           title = " ")
-  })
-  
-  output$hist_business_stars <- renderPlot({
-    ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()),
-                              binwidth = 0.5) +
+                              binwidth = 0.5, color = "black", 
+                              fill = "darkred") +
       labs(x = "Star Rating", y = "Number of destinations",
            title = " ")
   })
@@ -165,7 +159,8 @@ shinyServer(function(input, output) {
     hover = TRUE
   })
   
-   
+  # Business to make network reactive
+  
   business.network.nodes <- reactive({
     
     if(length(input$businesses_nodes) < 1) {
@@ -189,6 +184,32 @@ shinyServer(function(input, output) {
     }
   })
   
+  # Reviewer Filter to make network reactive
+  
+  reviewers.network.nodes <- reactive({
+    
+    if(length(input$reviewers_nodes) < 1) {
+      return(g.rev)
+    } else {
+      return(make.graph.neighborhoods.r(input$reviewers_nodes))
+    }
+  })
+  
+  nodes.reactive.r <- reactive({
+    df.nodes.r <- reviewers.network.nodes()$nodes
+  })
+  
+  links.reactive.r <- reactive({
+    df.links.r <- if (nrow(reviewers.network.nodes()$links) == 0) {
+      data.frame(source = 0,               
+                 target = 0,
+                 value = 0)
+    } else {
+      df.links.r <- reviewers.network.nodes()$links
+    }
+  })
+  
+  
   
   # businesses network
   # The networks
@@ -210,10 +231,10 @@ shinyServer(function(input, output) {
       bounded = TRUE,
       zoom = TRUE,
       Nodesize = "betweenness"
-
+      
     )
   })
-
+  
   output$business_network_dt <- renderDataTable(
     if(length(input$businesses_nodes) < 1) {
       dt.ntw.attrs
@@ -222,35 +243,40 @@ shinyServer(function(input, output) {
     },
     rownames = FALSE
   )
-
   
-  filtered_fans_graph <- reactive({
-    dt.vegas.full[fans >= input$fans]
-  })
-  
-  
-  output$force.new <- renderForceNetwork({
-    graph = filtered_fans_graph()
+  output$force.r <- renderForceNetwork({
     forceNetwork(
-      Links = g.rev$links,
-      Nodes = g.rev$nodes,
+      Links = links.reactive.r(),
+      Nodes = nodes.reactive.r(), 
       Source = 'source',
       Target = 'target',
       NodeID = 'name',
-      Value = 'value',
       Group = 'group',
       fontSize = 20,
-      linkWidth = networkD3::JS("function(d) {return Math.sqrt(d.value); }"),
+      height = 600,
       linkDistance = 100,
-      Nodesize = "betweenness",
-      legend = FALSE,
-      bounded = TRUE
+      linkWidth = 1,
+      radiusCalculation = JS("Math.sqrt(d.nodesize)+4"), 
+      bounded = TRUE,
+      zoom = TRUE,
+      Nodesize = "betweenness"
     )
   })
-
+  
+  output$dt.reviewers.network <- renderDataTable(
+    if(length(input$reviewers_nodes) < 1) {
+      dt.ntw.attrs.r
+    } else {
+      dt.ntw.attrs.r[dt.ntw.attrs.r$name %in% input$reviewers_nodes, ]
+    },
+    rownames = FALSE
+    
+  )
   
 })
 
 
 
 
+
+  
