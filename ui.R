@@ -249,14 +249,16 @@ shinyUI(fluidPage(
                    'This page shows the businesses that were reviewed by the most popular reviewers in Las Vegas, on the basis of how many fans the reviewers have.'
                  ),
                  sidebarLayout(sidebarPanel(
-                   sliderInput(
-                     'network_degree',
-                     label = h5("Number of connections"),
-                     value = 50,
-                     min = 0,
-                     max = 100,
-                     step = 1
-                   )
+                   selectInput('business_node_single',
+                               label = 'Choose a single restaurant',
+                               choices = dt.ntw.attrs$name),
+                   selectInput('businesses_nodes',
+                               label = 'Select your favourite restaurants',
+                               multiple = TRUE,
+                               #selected = dt.ntw.attrs$name,
+                               selectize = TRUE,
+                               choices = dt.ntw.attrs$name),
+                   DT::dataTableOutput("business_network_dt")
                  ), mainPanel(forceNetworkOutput('force')))
                 )),
       tabPanel("Reviewer Network"),
