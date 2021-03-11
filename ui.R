@@ -144,28 +144,20 @@ shinyUI(fluidPage(
             There is data on the average star rating that a user gives, their review count, the usefulness, funniness, and coolness of their reviews, and the number of fans that certain reviewers have."
           ),
           p(
-            "In the side bar, you can find summary statistics on some of the most interesting variables in the dataset.
+            "In the Summary Statistics Table, you can find summary statistics on some of the most interesting variables in the dataset.
             It's noticeable that the mean and median star ratings for both reviewers and businesses are high, indicating that reviewers tend to give positive reviews overall.
             In addition, the user review count and the user fans both have high maxima, but a very low median and average in comparison.
-            Lastly, this effect seems to be similar for business reviews, although weaker."
-          ),
-          p(
-            "In the drop down menu, you can navigate towards other interesting, interactive descriptives, that delve deeper into our data than what you can find here.
+            Lastly, this effect seems to be similar for business reviews, although weaker.
             Below, you can find a table with the first 100 observations in our dataset, with the most interesting variable names listed.
             You can pick the number of rows that you are interested in viewing."
           ),
-          h5(p("User Data")),
-          h6(p("User Fans")),
-          verbatimTextOutput("sum_fans"),
-          h6(p("User Review Count")),
-          verbatimTextOutput("sum_user_reviews"),
-          h6(p("Average Star Rating")),
-          verbatimTextOutput("sum_user_stars"),
-          h5(p("Business Data")),
-          h6(p("Number of Reviews Per Business")),
-          verbatimTextOutput("review_count_business"),
-          h6(p("Average Star Rating Per Business")),
-          verbatimTextOutput("star_business"),
+          p(
+            "In the drop down menu in the navgiation bar, you can navigate towards other interesting, interactive descriptives, that delve deeper into our data than what you can find here.
+            "
+          ),
+          h4("Summary Statistics Table"),
+          DT::dataTableOutput("table_sum_stats"),
+          h4("Dataset Table"),
           DT::dataTableOutput("table_vegas_full")
           )
           ),
@@ -261,7 +253,23 @@ shinyUI(fluidPage(
                    DT::dataTableOutput("business_network_dt")
                  ), mainPanel(forceNetworkOutput('force')))
                 )),
-      tabPanel("Reviewer Network"),
+      tabPanel("Reviewer Network",
+               tags$div(
+                 class = 'main_page',
+                 titlePanel("Most popular reviewers"),
+                 p('This page shows the most popular reviewers.'),
+                 sidebarLayout(sidebarPanel(
+                   sliderInput(
+                     inputId = 'fans',
+                     label = h5("Number of fans"),
+                     value = 1000,
+                     min = 1000,
+                     max = 3350,
+                     step = 50,
+                   )
+                 ),
+                 mainPanel(forceNetworkOutput('force.new'))), 
+               )),
     
     
     #predict

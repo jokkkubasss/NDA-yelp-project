@@ -33,7 +33,18 @@ dt.unique.users <- dt.vegas.full[, .(user_id = unique(user_id)), by =
 # Somehow, one user hasn't reviewed anything, so we're taking him/her out.
 dt.unique.users <- dt.unique.users[-c(240992), ,]
 
-# Here, we filter the data for the general descriptives table.
+# Here, we filter the data for the general descriptives tables.
+
+dt.summary <- dt.vegas.full[, .(stars, avg_stars, review_count_business,
+                                fans, average_user_stars)]
+
+dt.sum <- summary(dt.summary)
+dt.sum <- as.data.table(dt.sum)
+dt.sum.new <- rename(dt.sum,
+                  Variable = V2,
+                  SummaryStats = N)
+dt.sum.new <- dt.sum.new[, .(Variable, SummaryStats)]
+
 
 dt.vegas.full.2 <- dt.vegas.full[sample(nrow(dt.vegas.full), 100),
                                  .(user_id, business_id, stars, business_name, 
@@ -45,6 +56,9 @@ dt.vegas.full.2 <- dt.vegas.full[sample(nrow(dt.vegas.full), 100),
 ### Graph Creation
 
 # graph for the business network (filtered to include only top centiles)
+# graph for the business network (filtered to include only top percentiles)
+
+dt.vegas.graph <- dt.vegas.full[dt.vegas.full$fans > 999]
 
 
 # First we filter for the reviews that are considered usefull
@@ -120,20 +134,15 @@ g.biz <- igraph_to_networkD3(g.businesses.d3,
 # creating the betweenness dimension for D3 object
 g.biz$nodes$betweenness <-  betweenness(g.businesses.d3)
 
-
-
-g.biz$links$value
-
+# currently unused 
 normalize <- function(x)
 {
   return((x- min(x)) /(max(x)-min(x)))
 }
 
-make.graph(test)
 
-test
-
-# function that returns the filtered NetworkD3 object  
+# function that returns the filtered NetworkD3 object (you can use this one or the one below. 
+# Just copy it and alter the 'g.businesses.d3' into a graph of reviewers)
 make.graph <- function(items.to.filter) {
   
   g.original <- induced_subgraph(g.businesses.d3, 
@@ -146,8 +155,7 @@ make.graph <- function(items.to.filter) {
 }
 
 
-
-
+# function that creates a connection of neighborhoods of seleced nodes
 make.graph.neighborhoods <- function(items.to.filter) {
   
   g.original <- make_ego_graph(g.businesses.d3,
@@ -165,7 +173,7 @@ make.graph.neighborhoods <- function(items.to.filter) {
     
 }
 
-# function that unionizes multiple igraphs
+# function that unionizes multiple igraphs (used in the function above)
 make.g.union <- function(graphs) {
   result <- get.edgelist(make_empty_graph())
   for (subgraph in graphs) {
@@ -173,6 +181,27 @@ make.g.union <- function(graphs) {
   } 
   return(graph_from_edgelist(unique(result)))
 }
+
+
+
+# Network reviewers
+
+g.reviewers <- bipartite.projection(g.bi.vegas)$proj2
+
+E(g.reviewers)$weight
+
+V(g.reviewers)$nghd <- 'group two'
+
+V(g.reviewers)$degree <- degree(g.reviewers)
+
+g.rev <- igraph_to_networkD3(g.reviewers, group = V(g.reviewers)$nghd)
+
+g.rev$betweennes <- betweenness(g.reviewers)
+g.rev$nodes$betweenness <- betweenness(g.reviewers)
+order(g.rev$links$value)
+
+
+
 
 
 # Function that checks membership of each a string of items against a row containing these items
