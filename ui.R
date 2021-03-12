@@ -94,7 +94,8 @@ shinyUI(fluidPage(
     #Plan your trip tab (map)
     tabPanel(
       title = "Plan Your Trip",
-      leafletOutput('lv_map'),
+      leafletOutput('lv_map',
+                    height = 900),
       absolutePanel(
         id = "controls",
         fixed = FALSE,
@@ -245,16 +246,14 @@ shinyUI(fluidPage(
                  titlePanel("Well reviewed businesses"),
                  p(
                    'This page shows the bars, restaurants, and nightlife that were reviewed by the most popular reviewers in Las Vegas. 
-                   One business is connected to another business if they were reviewed by the same reviewer.
+                   One business is connected to another business if they were reviewed by at least 15 reviewers.
                    The reviewers were selected on the basis of the usefulness of their reviews, and on the basis of how many fans the reviewers have.
                    The size of each destination node depends on its betweenness centrality.
-                   The higher the betweenness, the shorter the path to other nodes in the network.
+                   The higher the betweenness, the shorter the path to other nodes in the network. To put it simply, the larger the node, the more reviewers
+                   have passed through that particular business.
                    In essence, betweenness shows how important a restaurant is when it pertains to their connections to other restaurants.'
                  ),
                  sidebarLayout(sidebarPanel(
-                   selectInput('business_node_single',
-                               label = 'Choose a single restaurant',
-                               choices = dt.ntw.attrs$name),
                      p(h5('Select a Destination')),
                      p('Here, you can select the bars, restaurants, and nightlife that were reviewed by the best reviewers.
                        If you select one of them, you will see automatically which other business was also reviewed by the same reviewers. 
@@ -263,7 +262,6 @@ shinyUI(fluidPage(
                    selectInput('businesses_nodes',
                                label = 'Select your favourite destination',
                                multiple = TRUE,
-                               #selected = dt.ntw.attrs$name,
                                selectize = TRUE,
                                choices = dt.ntw.attrs$name),
                    DT::dataTableOutput("business_network_dt")
