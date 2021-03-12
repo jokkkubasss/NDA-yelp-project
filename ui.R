@@ -164,7 +164,7 @@ shinyUI(fluidPage(
             "
           ),
           h4("Summary Statistics Table"),
-          DT::dataTableOutput("table_sum_stats"),
+          tableOutput('table_sum_stats'),
           h4("Dataset Table"),
           DT::dataTableOutput("table_vegas_full")
           )
@@ -178,7 +178,7 @@ shinyUI(fluidPage(
           sidebarPanel(
             "The histogram on the right displays the distribution of destinations based on their average rating. Here are options to filter the histogram on minimum amount of reviews, neighborhood and price range.
             Below the histogram, the top 10 destinations are displayed depending on the filters chosen. The destinations are first sorted by rating, then by the number of reviews.",
-            width = 5,
+            width = 4,
             br(),
             br(),
             sliderInput(
@@ -223,12 +223,16 @@ shinyUI(fluidPage(
               The reason for this is likely that expectations become higher as destinations fall in higher price categories."
             )
             ),
-          mainPanel(
-            h3("Rating distribution"),
-            width = 5,
-            plotOutput("hist_business_stars"),
-            tableOutput("table_biz_distribution")
-          )
+          mainPanel(tabsetPanel(
+            tabPanel(
+              "Plot",
+              h3("Rating distribution"),
+              width = 5,
+              plotOutput("hist_business_stars")
+            ),
+            tabPanel("Table",
+                     DT::dataTableOutput("table_biz_distribution"))
+          ))
             )
         ),
       tabPanel("Reviewer Descriptives")
@@ -294,6 +298,29 @@ shinyUI(fluidPage(
     
     
     #predict
-    tabPanel(title = "Predict your next party!")
+    tabPanel(title = "Predict your next party!", 
+             titlePanel("Find recommendations based on your favorite places!"), 
+             leafletOutput("lv_map_2", height = 900),
+             absolutePanel(
+               id = "controls",
+               fixed = FALSE,
+               top = 160,
+               left = "auto",
+               right = 20,
+               bottom = "auto",
+               width = 300,
+               height = "auto",
+               selectizeInput(
+                 "pref_destination",
+                 label = "Recommendation based on a destination",
+                 choices = l.business,
+                 selected = NULL,
+                 multiple = TRUE,
+                 options = list(create = FALSE)
+               ),
+               
+               
+             )
+    )
     )
 )))
