@@ -137,11 +137,10 @@ shinyServer(function(input, output) {
            title = " ")
   })
   
-  output$table_biz_distribution <- renderTable({
+  output$table_biz_distribution <- DT::renderDataTable(
     filtered_biz_reviews_data_table() %>%
       arrange(desc(avg_stars),
               desc(review_count_business)) %>%
-      head(, n = 10L) %>%
       rename(
         Rating = avg_stars,
         Name = business_name,
@@ -150,8 +149,7 @@ shinyServer(function(input, output) {
         Neighborhood = neighborhood_v,
         Categories = categories
       )
-    hover = TRUE
-  })
+  )
   
   # Business to make network reactive
   
@@ -266,6 +264,50 @@ shinyServer(function(input, output) {
     rownames = FALSE
     
   )
+  
+  # Link Prediction / Recommendation
+  
+  # LV map
+  output$lv_map_2 <- renderLeaflet({
+    dt <- data()
+    
+    leaflet(data = dt) %>%
+      setView(lng = -115.1666,
+              lat = 36.1465,
+              zoom = 11) %>%
+      addProviderTiles(providers$OpenStreetMap)
+  })
+  
+  # Data filtering, only including neighbors of a business
+  
+  
+  recommendation_data <- reactive({
+    dt.biz.nb[business_name 
+              %in% neighbors(g.businesses, input$pref_destination)$name]
+    
+  })
+  
+  # Markers
+  
+  observe({
+    leafletProxy("lv_map_2", data = recommendation_data()) %>%
+      clearMarkers() %>%
+      addMarkers(
+        lng = ~ longitude,
+        lat = ~ latitude,
+        popup = ~ paste(
+          "Name: ",
+          business_name,
+          "<br>",
+          "Rating: ",
+          avg_stars,
+          "<br>",
+          "Number of reviews: ",
+          review_count_business,
+          "<br>"
+        )
+      )
+  })
   
 })
 
