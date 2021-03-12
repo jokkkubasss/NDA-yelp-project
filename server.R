@@ -281,16 +281,32 @@ shinyServer(function(input, output) {
   # Data filtering, only including neighbors of a business
   
   
-  recommendation_data <- reactive({
-    dt.biz.nb[business_name 
-              %in% neighbors(g.businesses, input$pref_destination)$name]
+  recommendation.data <- reactive({
+    
+    if (input$similarities == 'Jaccard') {
+      dt.biz.nb[business_name 
+                %in% get.similar.nodes.jaccard(input$pref_destination, 
+                                               input$similarity_thresh)]
+      
+    } else if (input$similarities == 'Dice') {
+      dt.biz.nb[business_name 
+                %in% get.similar.nodes.dice(input$pref_destination, 
+                                               input$similarity_thresh)]
+      
+    } else if (input$similarities == 'Adamic-Adar') {
+      dt.biz.nb[business_name 
+                %in% get.similar.nodes.invlogweighted(input$pref_destination, 
+                                               input$similarity_thresh)]
+    }
     
   })
+  
+  
   
   # Markers
   
   observe({
-    leafletProxy("lv_map_2", data = recommendation_data()) %>%
+    leafletProxy("lv_map_2", data = recommendation.data()) %>%
       clearMarkers() %>%
       addMarkers(
         lng = ~ longitude,

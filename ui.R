@@ -310,14 +310,23 @@ shinyUI(fluidPage(
                bottom = "auto",
                width = 300,
                height = "auto",
-               selectizeInput(
+               selectInput(
                  "pref_destination",
                  label = "Recommendation based on a destination",
                  choices = l.business,
-                 selected = NULL,
-                 multiple = TRUE,
-                 options = list(create = FALSE)
+                 selected = NULL
+                 ), selectInput(
+                 'similarities',
+                 label = 'Choose similarity index',
+                 choices = c('Jaccard', 'Dice', 'Adamic-Adar')
                ),
+               sliderInput(
+                 'similarity_thresh',
+                 label = 'Similarity threshold',
+                 value = 0.7,
+                 min = 0,
+                 max = 1,
+                 step = 0.01)
                
                
              )

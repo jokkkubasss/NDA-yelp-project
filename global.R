@@ -250,6 +250,7 @@ make.graph.neighborhoods.r <- function(items.to.filter) {
   
 }
 
+
 make.g.union <- function(graphs) {
   result <- get.edgelist(make_empty_graph())
   for (subgraph in graphs) {
@@ -258,6 +259,36 @@ make.g.union <- function(graphs) {
   return(graph_from_edgelist(unique(result)))
 }
 
+# Calculating the similarities for the main network
+e.sim.jaccard <- similarity(g.businesses, method = "jaccard")
+E(g.businesses)$jaccard <- e.sim.jaccard[E(g.businesses)]
+
+e.sim.dice <- similarity(g.businesses, method = "dice")
+E(g.businesses)$dice <- e.sim.dice[E(g.businesses)]
+
+e.sim.invlogweighted <- similarity(g.businesses, method = "invlogweighted")
+E(g.businesses)$invlogweighted <- normalize(e.sim.invlogweighted[E(g.businesses)])
+
+
+### Functions to filter and find similar vertices
+get.similar.nodes.jaccard <- function(source_node, threshold) {
+  sim.edges <- E(g.businesses)[from(V(g.businesses)[source_node])]
+  as_ids(head_of(g.businesses, sim.edges[jaccard >= threshold]))
+}
+
+get.similar.nodes.dice <- function(source_node, threshold) {
+  sim.edges <- E(g.businesses)[from(V(g.businesses)[source_node])]
+  as_ids(head_of(g.businesses, sim.edges[dice >= threshold]))
+}
+
+get.similar.nodes.invlogweighted <- function(source_node, threshold) {
+  sim.edges <- E(g.businesses)[from(V(g.businesses)[source_node])]
+  as_ids(head_of(g.businesses, sim.edges[invlogweighted >= threshold]))
+}
+
+# for testing
+#sim.edges <- E(g.businesses)[from(V(g.businesses)["Jamba Juice"])]
+#unique(as_ids(head_of(g.businesses, sim.edges[jaccard >= 0.9])))
 
 
 # Function that checks membership of each a string of items against a row containing these items
