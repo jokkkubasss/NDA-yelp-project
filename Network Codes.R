@@ -1,10 +1,10 @@
-setwd("~/School/BIM/Network Data Analytics/Shiny App")
+setwd("C:/Users/jkras/Desktop/UNI/NDA/YELP/NDA-yelp-project")
 library(data.table)
 library(igraph)
 library(ggplot2)
 library(dplyr)
 
-dt.las.vegas.closed <- read.csv("las_vegas_complete.csv")
+dt.las.vegas.closed <- read.csv("../las_vegas_complete.csv")
 dt.las.vegas.closed <- as.data.table(dt.las.vegas.closed)
 
 dt.las.vegas.neighborhoods <- read.csv("neighborhoods.csv")
@@ -12,7 +12,7 @@ dt.las.vegas.neighborhoods <- as.data.table(dt.las.vegas.neighborhoods)
 
 # First, delete those stores that are not open 
 
-dt.las.vegas <- dt.las.vegas.closed[dt.las.vegas.closed$is_open == 1,,]
+dt.las.vegas.full <- dt.las.vegas.closed[dt.las.vegas.closed$is_open == 1,,]
 
 # Second, match the neighborhoods to the postal codes. 
 
@@ -42,6 +42,14 @@ dt.vegas.graph <- dt.las.vegas.full[dt.las.vegas.full$fans > 70 &
                                       dt.las.vegas.full$review_count_user > 613 
                                     & dt.las.vegas.full$votes_useful_user > 1907
                                     & dt.las.vegas.full$review_count_business > 1833, ]
+
+length(unique(dt.las.vegas.full[dt.las.vegas.full$fans > 1000]$business_id))
+
+summary(dt.las.vegas.full$fans)
+
+ggplot(dt.las.vegas.full, aes(x = fans)) + scale_y_log10() + geom_histogram()
+
+length(unique(dt.vegas.graph$business_id))
 dt.vegas.graph <- dt.vegas.graph[, .(user_id, business_name, business_id,
                                      neighborhood_v)]
 
@@ -61,6 +69,7 @@ dt.reviewers <- dt.vegas.graph[user_id %in% l.unique.reviewers,
                                list(name = unique(user_id), type = TRUE)]
 dt.businesses <- dt.vegas.graph[user_id %in% l.unique.reviewers,
                                 list(name = unique(business_name), type = FALSE)]
+
 dt.vertices <- rbind(dt.reviewers, dt.businesses)
 
 # Create the graph based on reviewers and businesses.
@@ -85,6 +94,18 @@ summary(g.users)
 # Let's plot them. 
 
 plot(g.businesses, vertex.label = NA)
+
+#### Network D3
+
+V(g.businesses)$nghd <- 'Test' 
+
+g.biz <- igraph_to_networkD3(g.businesses, group = V(g.businesses)$nghd)
+
+forceNetwork(Links = g.biz$links, Nodes = g.biz$nodes, Source = 'source', 
+             Target = 'target', NodeID = 'name', Group = 'group', linkDistance = 200)
+
+head(g.biz$nodes)
+
 
 plot(g.users, vertex.label = NA)
 

@@ -9,17 +9,42 @@
   opacity: 0.8;
 }
 
+#welcome_message {
+  font-size: 20px;
+}
+
 .forceNetwork {
   width: 97%;
 }
 
+.row {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+
 .main_page {
-  margin-left: 15px;
-  margin-right: 15px;
+  height: 671px;
+  background-image: url("lasvegas_sign.jpg");
+  background-size: 100%;
+}
+
+.custom_container {
+}
+
+.main_page h2 {
+  color: #ffffff;
+  text-align: center;
 }
 
 .title {
   margin-left: 15px;
+}
+
+h2 {
+  margin-top: 0px;
+  padding-top: 15px;
+
 }
 
 .container-fluid {
@@ -31,6 +56,13 @@
 	margin-bottom: 0px;
 }
 
+.navbar-header {
+  margin-left: 15px;
+}
+
+.navbar>.container-fluid .navbar-brand {
+  margin-left: 0px!important;
+}
 
 html {
     height: 100%;

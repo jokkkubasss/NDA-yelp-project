@@ -1,5 +1,8 @@
 #### This file contains all the necessary files that we will be using. ####
 ### RUN BEFORE RUNNING APP ###
+
+library(leaflet)
+library(shinythemes)
 library(shiny)
 library(ggplot2)
 library(data.table)
@@ -10,6 +13,7 @@ library(networkD3)
 library(igraph)
 library(pastecs)
 
+library(lubridate)
 # load the business categories
 cats.for.select <- readRDS("business_categories.rds")
 
@@ -30,6 +34,17 @@ dt.unique.users <- dt.vegas.full[, .(user_id = unique(user_id)), by =
 
 # Somehow, one user hasn't reviewed anything, so we're taking him/her out.
 dt.unique.users <- dt.unique.users[-c(240992), ,]
+
+# Dataset for reviewers network	
+dt.unique.users.all <- dt.vegas.full[!duplicated(dt.vegas.full$user_id), ]	
+dt.unique.users.reviewers <- dt.unique.users.all[, list(user_id, 
+                                                        fans, 
+                                                        average_user_stars, 
+                                                        review_count_user, 
+                                                        votes_useful_review, 
+                                                        votes_funny_review, 
+                                                        votes_cool_review)]	
+
 
 # Here, we filter the data for the general descriptives tables.
 
@@ -55,7 +70,15 @@ dt.vegas.full.2 <- dt.vegas.full[sample(nrow(dt.vegas.full), 100),
                                    review_count_user, fans, neighborhood_v)]
 
 
+dt.unique.users.all <- dt.vegas.full[!duplicated(dt.vegas.full$user_id), ]	
 
+dt.unique.users <- dt.unique.users.all[, list(user_id, 
+                                              fans, 
+                                              average_user_stars, 
+                                              review_count_user, 
+                                              votes_useful_review, 
+                                              votes_funny_review, 
+                                              votes_cool_review)]
 ### Graph Creation
 
 # graph for the business network (filtered to include only top centiles)
@@ -299,3 +322,17 @@ check_membership <- function(keys, item) {
     FALSE
   } 
 }
+
+# function for filtering user desriptives
+filter_var <- function(x, val) {
+  if (is.numeric(x)) {
+    !is.na(x) & x >= val[1] & x <= val[2]
+  } else if (is.factor(x)) {
+    x %in% val
+  } else {
+    # No control, so don't filter
+    TRUE
+  }
+}
+
+

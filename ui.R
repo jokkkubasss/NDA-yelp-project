@@ -7,17 +7,12 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(leaflet)
-library(shinythemes)
-
 
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
   theme = shinytheme("united"),
-  tags$head(HTML('<link rel="icon" href="www/icon_new.png" 
-                type="image/png" />'),# Include custom CSS
+  tags$head(# Include custom CSS
     includeCSS("www/styles.css")),
   
   # Application title
@@ -29,36 +24,13 @@ shinyUI(fluidPage(
       tabPanel(
         "Welcome to Las Vegas Party Planning",
         fluid = TRUE,
-        tags$div(
-          class = 'main_page',
-        titlePanel("Welcome to Las Vegas Party Planning"),
-        sidebarLayout(sidebarPanel(
-          p(
-            "Welcome to Las Vegas Party Planning!
-            With this app, you can find your perfect party, bar, and dining destinations for your trip to Las Vegas.
-            In the Plan Your Trip tab, you can use our interactive map to select your favorite categories, minimum amount of stars, and price categories.
-            This will allow users to easily select the destinations that they like. 
-            In addition, it allows for businesses to easily see who their main competitors are in certain categories.
-            In the Explore The Data tab, you can find the descriptives of the data that we used.
-            This tab includes summary statistics, and an overview of some of our most important variables. 
-            In addition, you can find interactive plots on reviewers and businesses. For example, you can see which neighborhoods have which kinds of restaurants here. 
-            The See The Network tab gives you the ability to see our businesses and reviewers networks in great detail.
-            We have two bipartite graphs. In the businesses graph, you can see the destinations which were visited by the best Yelp reviewers, and are most centrally located. 
-            This can serve as an indicator which restaurants you cannot miss!
-            In addition, in the reviewers network, you can find who of the most popular reviewers have visited the same places. 
-            It gives an indication of which reviewers are the key players in rating our party destinations in the Las Vegas area.
-            Lastly, in the Predict your Party! tab allows you to predict your next favorite place to party in Vegas, based on your personal preferences."
-          )
-          ),
-          mainPanel(
-            img(
-              src = "lasvegas_sign.jpg",
-              height = 600,
-              width =
-                900
-            )
-          )))
-        ),
+        tags$div(class = 'main_page',
+                 #titlePanel("About the app"),
+                 
+                 column(6, span(
+                   htmlOutput("welcome_message")
+                 )))
+      ),
       
       
       
@@ -234,102 +206,166 @@ shinyUI(fluidPage(
                      DT::dataTableOutput("table_biz_distribution"))
           ))
             )
-        ),
-      tabPanel("Reviewer Descriptives")
+      ),
+      tabPanel(
+        "Reviewer Descriptives",
+        titlePanel("Reviewer Descriptives"),
+        sidebarLayout(
+          sidebarPanel(
+            p(
+              "On this page, you can select for the number of fans, review count, usefulnes, funny, and cool counts that reviewers have.
+              Selecting a range for each category, an overview of users that meet these requirements and their average ratings is provided.
+              Likewise, a table with their IDs and all the specific information regarding them is shown and the second tab."
+            ),
+            make_ui(dt.unique.users$fans, "Fans"),
+            make_ui(dt.unique.users$review_count_user, "Review"),
+            make_ui(dt.unique.users$votes_useful_review, "Useful"),
+            make_ui(dt.unique.users$votes_funny_review, "Funny"),
+            make_ui(dt.unique.users$votes_cool_review, "Cool")
+            ),
+          mainPanel(
+            tabsetPanel(
+              type = "tabs",
+              tabPanel(
+                "Plot",
+                br(),
+                p(
+                  "Using the sliders to create subsets leads to noteworthy mentions. First, it is noticeable that there is a large sample population for reviewers that have 0 fans.
+                  Also noteworthy is that the distribution of reviewers with 0 fans have an average rating of 5."
+                ),
+                br(),
+                p(
+                  "However, if you filter reviewers with a minimum requirement of 50 fans, or filter them with on minimum number of reviews, the distribution is failr normally distributed.
+                  This can imply that users with an average rating of 5 are not actively rating businesses as seriously or have only rated a limited amount of times. If you up these numbers,
+                  the average rating of users  is normally distributed around an average rating of 4. This probably has to do with the fact that these reviewers do take rating businesses more seriously."
+                ),
+                br(),
+                p(
+                  "Lastly, it is also noticeable that there are little reviewers that score on the counts on funny, usefull, and cool, leading to small sample populations. However, the average rating of users do fairly have normal distributions."
+                ),
+                plotOutput("ReviewersPlot")
+                ),
+              tabPanel("Table"),
+              br(),
+              tableOutput("ReviewersTable")
+                )
+          )
+        )
+        )),
+      
+      
+      # Network tab
+      navbarMenu(
+        title = "See The Network",
+        tabPanel("Network Descriptives",
+                 titlePanel("Network Descriptives")),
+        tabPanel(
+          "Business Network",
+          tags$div(
+            class = 'custom_container',
+            titlePanel("Well reviewed businesses"),
+            p(
+              'This page shows the bars, restaurants, and nightlife that were reviewed by the most popular reviewers in Las Vegas.
+              One business is connected to another business if they were reviewed by at least 15 reviewers.
+              The reviewers were selected on the basis of the usefulness of their reviews, and on the basis of how many fans the reviewers have.
+              The size of each destination node depends on its betweenness centrality.
+              The higher the betweenness, the shorter the path to other nodes in the network. To put it simply, the larger the node, the more reviewers
+              have passed through that particular business.
+              In essence, betweenness shows how important a restaurant is when it pertains to their connections to other restaurants.'
+            ),
+            sidebarLayout(
+              sidebarPanel(
+                p(h5('Select a Destination')),
+                p(
+                  'Here, you can select the bars, restaurants, and nightlife that were reviewed by the best reviewers.
+                  If you select one of them, you will see automatically which other business was also reviewed by the same reviewers.
+                  If you choose multiple destinations at once, you will see whether the two businesses connect through reviewers or not.
+                  If they connect, you can easily see through which destination.'
+                ),
+                selectInput(
+                  'businesses_nodes',
+                  label = 'Select your favourite destination',
+                  multiple = TRUE,
+                  selectize = TRUE,
+                  choices = dt.ntw.attrs$name
+                ),
+                DT::dataTableOutput("business_network_dt")
+                ),
+              mainPanel(forceNetworkOutput('force'))
+            )
+            )
+      ),
+      tabPanel(
+        "Reviewer Network",
+        tags$div(
+          class = 'custom_container',
+          titlePanel("Most popular reviewers"),
+          p(
+            'This page shows the most popular reviewers in our Las Vegas dataset by their unique user IDs. The data was pre-filtered based on the usefulness of reviews, and the number of fans reviewers have.
+            One reviewer is linked to another if they reviewed the same businesses. The size of the reviewer nodes is dependent on the betweenness of a node.
+            The higher the betweenness, the shorter the path to other nodes in the network.'
           ),
-    
-    
-    # Network tab
-    navbarMenu(
-      title = "See The Network",
-      tabPanel("Network Descriptives",
-               titlePanel("Network Descriptives")),
-      tabPanel("Business Network",
-               tags$div(
-                 class = 'main_page',
-                 titlePanel("Well reviewed businesses"),
-                 p(
-                   'This page shows the bars, restaurants, and nightlife that were reviewed by the most popular reviewers in Las Vegas. 
-                   One business is connected to another business if they were reviewed by at least 15 reviewers.
-                   The reviewers were selected on the basis of the usefulness of their reviews, and on the basis of how many fans the reviewers have.
-                   The size of each destination node depends on its betweenness centrality.
-                   The higher the betweenness, the shorter the path to other nodes in the network. To put it simply, the larger the node, the more reviewers
-                   have passed through that particular business.
-                   In essence, betweenness shows how important a restaurant is when it pertains to their connections to other restaurants.'
-                 ),
-                 sidebarLayout(sidebarPanel(
-                     p(h5('Select a Destination')),
-                     p('Here, you can select the bars, restaurants, and nightlife that were reviewed by the best reviewers.
-                       If you select one of them, you will see automatically which other business was also reviewed by the same reviewers. 
-                       If you choose multiple destinations at once, you will see whether the two businesses connect through reviewers or not.
-                       If they connect, you can easily see through which destination.'),
-                   selectInput('businesses_nodes',
-                               label = 'Select your favourite destination',
-                               multiple = TRUE,
-                               selectize = TRUE,
-                               choices = dt.ntw.attrs$name),
-                   DT::dataTableOutput("business_network_dt")
-                 ), mainPanel(forceNetworkOutput('force')))
-                )),
-      tabPanel("Reviewer Network",
-               tags$div(
-                 class = 'main_page',
-                 titlePanel("Most popular reviewers"),
-                 p('This page shows the most popular reviewers in our Las Vegas dataset by their unique user IDs. The data was pre-filtered based on the usefulness of reviews, and the number of fans reviewers have.
-                   One reviewer is linked to another if they reviewed the same businesses. The size of the reviewer nodes is dependent on the betweenness of a node. 
-                   The higher the betweenness, the shorter the path to other nodes in the network.'),
-                 sidebarLayout(
-                   sidebarPanel(
-                     p(h5('How to select reviewers')),
-                     p('Here, you can select the most interesting reviewers, and see their direct neighbors.
-                       By selecting more than one reviewer, you will see the chosen reviewers, their direct neighbors, and if and how they are connected to one another.'),
-                     selectInput('reviewers_nodes',
-                                 label = "Select interesting reviewers",
-                                 multiple = TRUE,
-                                 selectize = TRUE,
-                                 choices = dt.ntw.attrs.r$name),
-                     DT::dataTableOutput("dt.reviewers.network")
-                   ),
-                   mainPanel(forceNetworkOutput('force.r'))
-                   )
-                 )
-               ),
- 
-    
-    
-    #predict
-    tabPanel(title = "Predict your next party!", 
-             titlePanel("Find recommendations based on your favorite places!"), 
-             leafletOutput("lv_map_2", height = 900),
-             absolutePanel(
-               id = "controls",
-               fixed = FALSE,
-               top = 160,
-               left = "auto",
-               right = 20,
-               bottom = "auto",
-               width = 300,
-               height = "auto",
-               selectInput(
-                 "pref_destination",
-                 label = "Recommendation based on a destination",
-                 choices = l.business,
-                 selected = NULL
-                 ), selectInput(
-                 'similarities',
-                 label = 'Choose similarity index',
-                 choices = c('Jaccard', 'Dice', 'Adamic-Adar')
-               ),
-               sliderInput(
-                 'similarity_thresh',
-                 label = 'Similarity threshold',
-                 value = 0.7,
-                 min = 0,
-                 max = 1,
-                 step = 0.01)
-               
-               
-             )
+          sidebarLayout(
+            sidebarPanel(
+              p(h5('How to select reviewers')),
+              p(
+                'Here, you can select the most interesting reviewers, and see their direct neighbors.
+                By selecting more than one reviewer, you will see the chosen reviewers, their direct neighbors, and if and how they are connected to one another.'
+              ),
+              selectInput(
+                'reviewers_nodes',
+                label = "Select interesting reviewers",
+                multiple = TRUE,
+                selectize = TRUE,
+                choices = dt.ntw.attrs.r$name
+              ),
+              DT::dataTableOutput("dt.reviewers.network")
+              ),
+            mainPanel(forceNetworkOutput('force.r'))
+          )
+        )
+        ),
+      
+      
+      
+      #predict
+      tabPanel(
+        title = "Predict your next party!",
+        titlePanel("Find recommendations based on your favorite places!"),
+        leafletOutput("lv_map_2", height = 900),
+        absolutePanel(
+          id = "controls",
+          fixed = FALSE,
+          top = 160,
+          left = "auto",
+          right = 20,
+          bottom = "auto",
+          width = 300,
+          height = "auto",
+          selectInput(
+            "pref_destination",
+            label = "Recommendation based on a destination",
+            choices = l.business,
+            selected = NULL
+          ),
+          selectInput(
+            'similarities',
+            label = 'Choose similarity index',
+            choices = c('Jaccard', 'Dice', 'Adamic-Adar')
+          ),
+          sliderInput(
+            'similarity_thresh',
+            label = 'Similarity threshold',
+            value = 0.7,
+            min = 0,
+            max = 1,
+            step = 0.01
+          )
+          
+          
+        )
+      )
     )
     )
-)))
+    )
+  )

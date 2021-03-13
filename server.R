@@ -52,6 +52,24 @@ shinyServer(function(input, output) {
       )
   })
   
+  output$welcome_message <- renderText({
+    paste("<font color=\"#eaeddc\"><h3>", "Welcome to Las Vegas Party Planning!","</h3></font>","<br>",
+          " With this app, you can find your perfect party, bar, and dining destinations for your trip to Las Vegas.
+            In the Plan Your Trip tab, you can use our interactive map to select your favorite categories, minimum amount of stars, and price categories.
+            This will allow users to easily select the destinations that they like. 
+            In addition, it allows for businesses to easily see who their main competitors are in certain categories.
+            In the Explore The Data tab, you can find the descriptives of the data that we used.
+            This tab includes summary statistics, and an overview of some of our most important variables. 
+            In addition, you can find interactive plots on reviewers and businesses. For example, you can see which neighborhoods have which kinds of restaurants here. 
+            The See The Network tab gives you the ability to see our businesses and reviewers networks in great detail.
+            We have two bipartite graphs. In the businesses graph, you can see the destinations which were visited by the best Yelp reviewers, and are most centrally located. 
+            This can serve as an indicator which restaurants you cannot miss!
+            In addition, in the reviewers network, you can find who of the most popular reviewers have visited the same places. 
+            It gives an indication of which reviewers are the key players in rating our party destinations in the Las Vegas area.
+            Lastly, in the Predict your Party! tab allows you to predict your next favorite place to party in Vegas, based on your personal preferences.")
+    
+  })
+  
   output$distPlot <- renderPlot({
     # generate bins based on input$bins from ui.R
     x    <- faithful[, 2]
@@ -150,6 +168,79 @@ shinyServer(function(input, output) {
         Categories = categories
       )
   )
+  
+  # Functions Reviewer Descriptives 
+  make_ui <- function(x, var) {
+    if (is.numeric(x)) {
+      rng <- range(x, na.rm = TRUE)
+      sliderInput(var, var, min = rng[1], max = rng[2], value = rng)
+    } else if (is.factor(x)) {
+      levs <- levels(x)
+      selectInput(var, var, choices = levs, selected = levs, multiple = TRUE)
+    } else {
+      # Not supported
+      NULL
+    }
+  }
+  
+  # Reviewer Descriptives Data Filtering
+  sliders.reviewer <- reactive({
+    filter_var(dt.unique.users$fans, input$Fans) &
+      filter_var(dt.unique.users$review_count_user, input$Review) &
+      filter_var(dt.unique.users$votes_useful_review, input$Useful) &
+      filter_var(dt.unique.users$votes_funny_review, input$Funny) &
+      filter_var(dt.unique.users$votes_cool_review, input$Cool)
+  })
+  
+  reviewer.histogram <- reactive({
+    dt.unique.users[filter_var(dt.unique.users$fans, input$Fans) &
+                      filter_var(dt.unique.users$review_count_user, input$Review) &
+                      filter_var(dt.unique.users$votes_useful_review, input$Useful) &
+                      filter_var(dt.unique.users$votes_funny_review, input$Funny) &
+                      filter_var(dt.unique.users$votes_cool_review, input$Cool), average_user_stars]
+  })
+  
+  # General Descriptives Summary Statistics
+  
+  output$table_sum_stats <- renderTable({
+    dt.sum.new.new},
+    rownames = TRUE)
+  
+  output$table_vegas_full <- DT::renderDataTable({
+    dt.vegas.full.2
+    
+  })
+  
+  # Plots and filtering for Descriptives
+  
+  output$hist_business_stars <- renderPlot({
+    ggplot() + geom_histogram(aes(x = filtered_biz_reviews_data_plot()),
+                              binwidth = 0.5, color = "black", 
+                              fill = "darkred") +
+      labs(x = "Star Rating", y = "Number of destinations",
+           title = " ")
+  })
+  
+  output$table_biz_distribution <- DT::renderDataTable(
+    filtered_biz_reviews_data_table() %>%
+      arrange(desc(avg_stars),
+              desc(review_count_business)) %>%
+      rename(
+        Rating = avg_stars,
+        Name = business_name,
+        PriceRange = price_range,
+        Reviews = review_count_business,
+        Neighborhood = neighborhood_v,
+        Categories = categories
+      )
+  )  
+  
+  # Plot and table for Reviewer Descriptives
+  output$ReviewersTable <- renderTable(head(dt.unique.users[sliders.reviewer(), ], 15))
+  
+  output$ReviewersPlot <- renderPlot({
+    ggplot() + geom_histogram(aes(x = reviewer.histogram())) + labs(x = "Average Star Rating", y = "Number of Users")
+  })
   
   # Business to make network reactive
   
@@ -300,6 +391,17 @@ shinyServer(function(input, output) {
     }
     
   })
+  
+  onStop(function() {
+    
+    # 1. File name
+    p <- paste0(getwd(), "/app.R")
+    
+    # 2. Update file 'date creation'
+    Sys.setFileTime(p, now())
+    
+  }) # onStop
+  
   
   
   
