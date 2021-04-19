@@ -1,3 +1,7 @@
-Hey guys! 
+A final project for Network Data Analytics course. Published live at: https://jokubas-krasauskas.shinyapps.io/nda-yelp-project/
 
-I made this repo to share our code for our Shiny project
+Authors: 
+Renate Shroder
+Ting Fung Li
+Sawan Mahabar
+Jokubas Krasauskas
